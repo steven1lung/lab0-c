@@ -27,6 +27,8 @@ struct list_head *q_new()
 /* Free all storage used by queue */
 void q_free(struct list_head *l)
 {
+    if (!l)
+        return;
     element_t *li, *tmp;
     list_for_each_entry_safe (li, tmp, l, list) {
         list_del_init(&li->list);
