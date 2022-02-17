@@ -197,14 +197,14 @@ void q_reverse(struct list_head *head)
 {
     if (!head || list_empty(head) || list_is_singular(head))
         return;
-    struct list_head *li = head, *safe;
-    int i = 0, size = q_size(head);
-    for (i = 0; i < size + 1; ++i) {
-        safe = li->next;
+    struct list_head *li, *safe;
+    list_for_each_safe (li, safe, head) {
         li->next = li->prev;
         li->prev = safe;
-        li = safe;
     }
+    safe = head->next;
+    head->next = li->prev;
+    head->prev = safe;
 }
 
 /*
