@@ -127,7 +127,13 @@ element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
  */
 element_t *q_remove_tail(struct list_head *head, char *sp, size_t bufsize)
 {
-    return NULL;
+    if (!head || list_empty(head))
+        return NULL;
+    element_t *target = list_last_entry(head, element_t, list);
+    list_del_init(&target->list);
+    strncpy(sp, target->value, bufsize - 1);
+    sp[bufsize - 1] = '\0';
+    return target;
 }
 
 /*
