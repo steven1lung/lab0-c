@@ -18,7 +18,7 @@
 
 struct list_head *list_get_mid(struct list_head *head);
 void merge(struct list_head *head, struct list_head *second);
-void free_element(struct list_head *li);
+void list_free_node(struct list_head *li);
 
 
 struct list_head *q_new()
@@ -37,7 +37,7 @@ void q_free(struct list_head *l)
         return;
     struct list_head *li, *safe;
     list_for_each_safe (li, safe, l)
-        free_element(li);
+        list_free_node(li);
     free(l);
 }
 
@@ -182,7 +182,7 @@ bool q_delete_mid(struct list_head *head)
     if (!head || list_empty(head))
         return false;
     struct list_head *mid = list_get_mid(head);
-    free_element(mid);
+    list_free_node(mid);
 
     return true;
 }
@@ -212,11 +212,11 @@ bool q_delete_dup(struct list_head *head)
                    !strcmp(list_entry(cur, element_t, list)->value,
                            list_entry(cur->next, element_t, list)->value)) {
                 safe = cur->next;
-                free_element(cur);
+                list_free_node(cur);
                 cur = safe;
             }
             safe = cur->next;
-            free_element(cur);
+            list_free_node(cur);
             cur = safe;
         }
         li = cur->next;
@@ -316,9 +316,9 @@ struct list_head *list_get_mid(struct list_head *head)
 }
 
 /*
- * Free the selected element in the queue
+ * Free the selected mode in the queue
  */
-void free_element(struct list_head *li)
+void list_free_node(struct list_head *li)
 {
     if (!li)
         return;
