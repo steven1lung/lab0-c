@@ -18,6 +18,8 @@
 
 struct list_head *list_get_mid(struct list_head *head);
 void merge(struct list_head *head, struct list_head *second);
+void free_element(struct list_head *li);
+
 
 struct list_head *q_new()
 {
@@ -33,12 +35,9 @@ void q_free(struct list_head *l)
 {
     if (!l)
         return;
-    element_t *li, *tmp;
-    list_for_each_entry_safe (li, tmp, l, list) {
-        list_del_init(&li->list);
-        free(li->value);
-        free(li);
-    }
+    struct list_head *li, *safe;
+    list_for_each_safe (li, safe, l)
+        free_element(li);
     free(l);
 }
 
@@ -183,10 +182,8 @@ bool q_delete_mid(struct list_head *head)
     if (!head || list_empty(head))
         return false;
     struct list_head *mid = list_get_mid(head);
-    element_t *tmp = list_entry(mid, element_t, list);
-    list_del_init(&tmp->list);
-    free(tmp->value);
-    free(tmp);
+    free_element(mid);
+
     return true;
 }
 
@@ -215,20 +212,15 @@ bool q_delete_dup(struct list_head *head)
                    !strcmp(list_entry(cur, element_t, list)->value,
                            list_entry(cur->next, element_t, list)->value)) {
                 safe = cur->next;
-                list_del_init(cur);
-                free(list_entry(cur, element_t, list)->value);
-                free(list_entry(cur, element_t, list));
+                free_element(cur);
                 cur = safe;
             }
             safe = cur->next;
-            list_del_init(cur);
-            free(list_entry(cur, element_t, list)->value);
-            free(list_entry(cur, element_t, list));
+            free_element(cur);
             cur = safe;
         }
         li = cur->next;
     }
-
     return true;
 }
 
@@ -321,4 +313,16 @@ struct list_head *list_get_mid(struct list_head *head)
         right = right->prev;
     }
     return right->prev;
+}
+
+/*
+ * Free the selected element in the queue
+ */
+void free_element(struct list_head *li)
+{
+    if (!li)
+        return;
+    list_del_init(li);
+    free(list_entry(li, element_t, list)->value);
+    free(list_entry(li, element_t, list));
 }
