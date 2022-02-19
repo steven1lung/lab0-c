@@ -15,6 +15,9 @@
  * Create empty queue.
  * Return NULL if could not allocate space.
  */
+
+struct list_head *list_get_mid(struct list_head *head);
+
 struct list_head *q_new()
 {
     struct list_head *head = malloc(sizeof(struct list_head));
@@ -178,12 +181,8 @@ bool q_delete_mid(struct list_head *head)
     // https://leetcode.com/problems/delete-the-middle-node-of-a-linked-list/
     if (!head || list_empty(head))
         return false;
-    struct list_head *left = head, *right = head;
-    while (!(right->prev == left || right->prev == left->next)) {
-        left = left->next;
-        right = right->prev;
-    }
-    element_t *tmp = list_entry(right->prev, element_t, list);
+    struct list_head *mid = list_get_mid(head);
+    element_t *tmp = list_entry(mid, element_t, list);
     list_del_init(&tmp->list);
     free(tmp->value);
     free(tmp);
@@ -240,3 +239,16 @@ void q_reverse(struct list_head *head)
  * element, do nothing.
  */
 void q_sort(struct list_head *head) {}
+
+/*
+ * Return the middle node of the queue
+ */
+struct list_head *list_get_mid(struct list_head *head)
+{
+    struct list_head *left = head, *right = head;
+    while (!(right->prev == left || right->prev == left->next)) {
+        left = left->next;
+        right = right->prev;
+    }
+    return right->prev;
+}
