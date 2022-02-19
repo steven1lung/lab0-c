@@ -11,16 +11,19 @@
  *   cppcheck-suppress nullPointer
  */
 
-/*
- * Create empty queue.
- * Return NULL if could not allocate space.
- */
+#define list_value_cmp(li1, li2)                    \
+    strcmp(list_entry(li1, element_t, list)->value, \
+           list_entry(li2, element_t, list)->value)
 
 struct list_head *list_get_mid(struct list_head *head);
 void merge(struct list_head *head, struct list_head *second);
 void list_free_node(struct list_head *li);
 
 
+/*
+ * Create empty queue.
+ * Return NULL if could not allocate space.
+ */
 struct list_head *q_new()
 {
     struct list_head *head = malloc(sizeof(struct list_head));
@@ -205,12 +208,8 @@ bool q_delete_dup(struct list_head *head)
     struct list_head *li = head->next, *safe;
     while (li != head) {
         struct list_head *cur = li;
-        if (cur->next != head &&
-            !strcmp(list_entry(cur, element_t, list)->value,
-                    list_entry(cur->next, element_t, list)->value)) {
-            while (cur->next != head &&
-                   !strcmp(list_entry(cur, element_t, list)->value,
-                           list_entry(cur->next, element_t, list)->value)) {
+        if (cur->next != head && !list_value_cmp(cur, cur->next)) {
+            while (cur->next != head && !list_value_cmp(cur, cur->next)) {
                 safe = cur->next;
                 list_free_node(cur);
                 cur = safe;
@@ -287,9 +286,7 @@ void merge(struct list_head *head, struct list_head *head2)
 {
     struct list_head *i_head = head->next, *i_head2, *next;
     for (i_head2 = head2->next; !list_empty(head2); i_head2 = next) {
-        while (i_head != head &&
-               strcmp(list_entry(i_head, element_t, list)->value,
-                      list_entry(i_head2, element_t, list)->value) < 0) {
+        while (i_head != head && list_value_cmp(i_head, i_head2) < 0) {
             i_head = i_head->next;
         }
         if (i_head == head)
