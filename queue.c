@@ -264,6 +264,18 @@ void q_reverse(struct list_head *head)
     head->prev = safe;
 }
 
+int list_check_sorted(struct list_head *head)
+{
+    element_t *el;
+    char *prev_val = list_first_entry(head, element_t, list)->value;
+    list_for_each_entry (el, head, list) {
+        if (strcmp(el->value, prev_val) < 0)
+            return 0;
+        prev_val = el->value;
+    }
+    return 1;
+}
+
 /*
  * Sort elements of queue in ascending order
  * No effect if q is NULL or empty. In addition, if q has only one
@@ -273,7 +285,8 @@ void q_sort(struct list_head *head)
 {
     if (!head || q_size(head) <= 1)
         return;
-
+    if (list_check_sorted(head) == 1)
+        return;
     LIST_HEAD(head2);
     list_cut_position(&head2, head, list_get_mid(head));
     q_sort(head);
