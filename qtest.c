@@ -527,6 +527,51 @@ static bool do_dedup(int argc, char *argv[])
     return ok && !error_check();
 }
 
+void list_value_swap(struct list_head *li1, struct list_head *li2)
+{
+    element_t *tmp1 = list_entry(li1, element_t, list);
+    element_t *tmp2 = list_entry(li2, element_t, list);
+    char *tmp = tmp1->value;
+    tmp1->value = tmp2->value;
+    tmp2->value = tmp;
+}
+
+void q_shuffle(struct list_head *head)
+{
+    int size = q_size(head);
+    if (!head || size <= 1)
+        return;
+    for (int i = size - 1; i > 0; --i) {
+        int j = rand() % i;
+        struct list_head *li = head->next, *tail = head;
+        for (int tmp = j; tmp > 0; --tmp)
+            li = li->next;
+        for (int tmp = size - i; tmp > 0; --tmp)
+            tail = tail->prev;
+        list_value_swap(li, tail);
+    }
+}
+
+static bool do_shuffle(int argc, char *argv[])
+{
+    if (argc != 1) {
+        report(1, "%s takes no arguments", argv[0]);
+        return false;
+    }
+    if (!l_meta.l)
+        report(3, "Warning: Calling shuffle on null queue");
+    error_check();
+
+    set_noallocate_mode(true);
+    if (exception_setup(true))
+        q_shuffle(l_meta.l);
+    exception_cancel();
+
+    set_noallocate_mode(false);
+    show_queue(3);
+    return !error_check();
+}
+
 static bool do_reverse(int argc, char *argv[])
 {
     if (argc != 1) {
@@ -786,6 +831,7 @@ static void console_init()
         rhq,
         "                | Remove from head of queue without reporting value.");
     ADD_COMMAND(reverse, "                | Reverse queue");
+    ADD_COMMAND(shuffle, "                | Shuffle queue");
     ADD_COMMAND(sort, "                | Sort queue in ascending order");
     ADD_COMMAND(
         size, " [n]            | Compute queue size n times (default: n == 1)");
