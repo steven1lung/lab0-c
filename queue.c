@@ -17,6 +17,7 @@
  */
 
 struct list_head *list_get_mid(struct list_head *head);
+void merge(struct list_head *head, struct list_head *second);
 
 struct list_head *q_new()
 {
@@ -238,7 +239,37 @@ void q_reverse(struct list_head *head)
  * No effect if q is NULL or empty. In addition, if q has only one
  * element, do nothing.
  */
-void q_sort(struct list_head *head) {}
+void q_sort(struct list_head *head)
+{
+    if (!head || q_size(head) <= 1)
+        return;
+
+    LIST_HEAD(head2);
+    list_cut_position(&head2, head, list_get_mid(head));
+    q_sort(head);
+    q_sort(&head2);
+    merge(head, &head2);
+}
+
+
+void merge(struct list_head *head, struct list_head *head2)
+{
+    struct list_head *i_head = head->next, *i_head2, *next;
+    for (i_head2 = head2->next; !list_empty(head2); i_head2 = next) {
+        while (i_head != head &&
+               strcmp(list_entry(i_head, element_t, list)->value,
+                      list_entry(i_head2, element_t, list)->value) < 0) {
+            i_head = i_head->next;
+        }
+        if (i_head == head)
+            list_splice_tail_init(head2, i_head);
+        else {
+            next = i_head2->next;
+            list_del_init(i_head2);
+            list_add_tail(i_head2, i_head);
+        }
+    }
+}
 
 /*
  * Return the middle node of the queue
