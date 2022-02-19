@@ -214,8 +214,8 @@ void q_swap(struct list_head *head)
     if (!head || q_size(head) <= 1)
         return;
     struct list_head *li = head->next;
-    int loops = q_size(head) / 2;
-    for (int i = 0; i < loops; ++i) {
+    int pairs = q_size(head) / 2;
+    for (int i = 0; i < pairs; ++i) {
         element_t *cur = list_entry(li, element_t, list);
         element_t *next = list_entry(li->next, element_t, list);
         char *tmp = cur->value;
